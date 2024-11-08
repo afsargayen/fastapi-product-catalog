@@ -1,0 +1,43 @@
+services:
+  product_db:
+    image: mysql:8.0
+    container_name: db_container
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - pc_network
+
+  backend:
+    container_name: app_container
+    image: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - product_db
+    networks:
+      - pc_network
+
+networks:
+  pc_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  app:
